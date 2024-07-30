@@ -68,7 +68,7 @@ if (! isset($_REQUEST['make'])) {
   print "<h2>Quick Start</h2>\n";
 
   print "<p>This is <a href=\"https://github.com/gutenbergtools/ebookmaker\">ebookmaker</a> version 0.12.43";
-  print " with <a href=\"https://validator.w3.org/nu/\">Nu HTML Checker</a> version 24.5.3 and <a href=\"https://github.com/w3c/epubcheck\">epubcheck</a> version 5.1.0.</p>";
+  print " with <a href=\"https://validator.w3.org/nu/\">Nu HTML Checker</a> version 24.7.30 and <a href=\"https://github.com/w3c/epubcheck\">epubcheck</a> version 5.1.0.</p>";
   print "<p>Please upload a <strong>single file</strong>.  ";
   print "If your submission has more than ";
   print "one file, upload a .zip of all the needed files.  ";
