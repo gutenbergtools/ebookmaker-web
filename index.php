@@ -25,7 +25,8 @@
 # 2022-10-15: gbn: updated directory handling in the .zip
 # 2023-07-17: gbn: add vnu.jar validation checker on input file
 # 2023-07-17: gbn: vnu.jar for HTML5 only
-# 2024-01-01: gbn: added --verbose to /opt/ebookmaker to get INFO messages
+# 2025-01-01: gbn: added --verbose to /opt/ebookmaker to get INFO messages
+# 2025-01-02: gbn: added FILEDIR to env
 
 # TODO: add escapes etc. to title,author,ebook,encoding
 
@@ -36,7 +37,7 @@ $myname ="index.php";
 $mybaseurl = "https://ebookmaker.pglaf.org";
 # 2022-11-29: Something changed...
 # $prog = "export LC_ALL=C.UTF-8; export LANG=C.UTF-8; cd /opt/ebookmaker; /var/www/.local/bin/pipenv run ebookmaker";
-$prog = "export LC_ALL=C.UTF-8; export LANG=C.UTF-8; cd /opt/ebookmaker; /usr/local/bin/pipenv run ~www-data/.local/share/virtualenvs/ebookmaker-sLvSrXRz/bin/ebookmaker --verbose";
+$prog = "export FILESDIR=/var/tmp; export LC_ALL=C.UTF-8; export LANG=C.UTF-8; cd /opt/ebookmaker; /usr/local/bin/pipenv run ~www-data/.local/share/virtualenvs/ebookmaker-sLvSrXRz/bin/ebookmaker --verbose";
 $validator = "export LC_ALL=C.UTF-8; export LANG=C.UTF-8; /usr/bin/java -jar /usr/local/bin/vnu.jar --verbose --stdout";
 
 $pbase = "ebookmaker"; # do not show users the whole prog line.
@@ -68,8 +69,8 @@ if (! isset($_REQUEST['make'])) {
 
   print "<h2>Quick Start</h2>\n";
 
-  print "<p>This is <a href=\"https://github.com/gutenbergtools/ebookmaker\">ebookmaker</a> version 0.12.48";
-  print " with <a href=\"https://validator.w3.org/nu/\">Nu HTML Checker</a> version 24.7.30 and <a href=\"https://github.com/w3c/epubcheck\">epubcheck</a> version 5.2.0.</p>";
+  print "<p>This is <a href=\"https://github.com/gutenbergtools/ebookmaker\">ebookmaker</a> version 0.13.4";
+  print " with <a href=\"https://validator.w3.org/nu/\">Nu HTML Checker</a> version 24.7.30 and <a href=\"https://github.com/w3c/epubcheck\">epubcheck</a> version 5.2.1.</p>";
   print "<p>Please upload a <strong>single file</strong>.  ";
   print "If your submission has more than ";
   print "one file, upload a .zip of all the needed files.  ";
@@ -252,9 +253,9 @@ if (strlen($_REQUEST['mytitle'])) {
 if (strlen($_REQUEST['myauthor'])) {
   $gopts = $gopts . "--author=\"" . $_REQUEST['myauthor'] . "\" ";
 }
-if (strlen($_REQUEST['myencoding'])) {
-  $gopts = $gopts . "--input-mediatype=\"text/plain;charset=" . $_REQUEST['myencoding'] . "\" ";
-}
+# if (strlen($_REQUEST['myencoding'])) {
+#  $gopts = $gopts . "--input-mediatype=\"text/plain;charset=" . $_REQUEST['myencod# ing'] . "\" ";
+#}
 if (strlen($_REQUEST['myebook'])) {
   $gopts = $gopts . "--ebook=\"" . $_REQUEST['myebook'] . "\" ";
 } else {
