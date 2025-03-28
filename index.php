@@ -28,8 +28,6 @@
 # 2025-01-01: gbn: added --verbose to /opt/ebookmaker to get INFO messages
 # 2025-01-02: gbn: added FILEDIR to env
 
-# TODO: add escapes etc. to title,author,ebook,encoding
-
 include ("pglaf.phh"); // Marcello's functions with additions/customizations
 ini_set('default_charset', 'UTF-8');
 
@@ -248,16 +246,17 @@ $gopts = $gopts . "--max-depth=3 ";
 $gopts = $gopts . "--output-dir=$tmpdir" . "/" . $tmpsubdir . " ";
 
 if (strlen($_REQUEST['mytitle'])) {
-  $gopts = $gopts . "--title=\"" . $_REQUEST['mytitle'] . "\" ";
+  $gopts = $gopts . "--title=" . escapeshellarg($_REQUEST['mytitle']) . " ";
 }
 if (strlen($_REQUEST['myauthor'])) {
-  $gopts = $gopts . "--author=\"" . $_REQUEST['myauthor'] . "\" ";
+  $gopts = $gopts . "--author=" . escapeshellarg($_REQUEST['myauthor']) . " ";
 }
-# if (strlen($_REQUEST['myencoding'])) {
-#  $gopts = $gopts . "--input-mediatype=\"text/plain;charset=" . $_REQUEST['myencod# ing'] . "\" ";
+# TODO: must properly escape $_REQUEST['myencoding'] before using
+#if (strlen($_REQUEST['myencoding'])) {
+#  $gopts = $gopts . "--input-mediatype=\"text/plain;charset=" . $_REQUEST['myencoding'] . "\" ";
 #}
 if (strlen($_REQUEST['myebook'])) {
-  $gopts = $gopts . "--ebook=\"" . $_REQUEST['myebook'] . "\" ";
+  $gopts = $gopts . "--ebook=" . escapeshellarg($_REQUEST['myebook']) . " ";
 } else {
   $gopts = $gopts . "--ebook=10001 "; # Required
 }
@@ -343,7 +342,7 @@ print "<blockquote><form enctype=\"multipart/form-data\" method=\"POST\" accept-
 
   print "<br><input type=\"text\" size=\"50\" name=\"mytitle\" value=\"UnknownTitle\"> eBook title";
   print "<br><input type=\"text\" size=\"50\" name=\"myauthor\" value=\"UnknownAuthor\"> eBook author";
-  print "<br><input type=\"text\" size=\"20\" name=\"myencoding\" value=\"\"> File encoding (us-ascii, iso-8859-1, utf-8, etc.; mandatory for plain text files)";
+  #print "<br><input type=\"text\" size=\"20\" name=\"myencoding\" value=\"\"> File encoding (us-ascii, iso-8859-1, utf-8, etc.; mandatory for plain text files)";
   print "<br><input type=\"text\" size=\"10\" name=\"myebook\" value=\"10001\"> eBook number (must be an integer)";
 
   print "<br><input type=\"submit\" value=\"Make it!\" name=\"make\">\n";
