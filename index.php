@@ -312,10 +312,11 @@ function output_header(string $title): void
 
 function output_footer(): void
 {
+    $year = date('Y');
     echo <<<EOFOOTER
     <hr>
 
-    <p>Trouble or questions? Please email <i>copyright2023 AT pglaf.org</i>
+    <p>Trouble or questions? Please email <i>copyright$year AT pglaf.org</i>
     for clearance questions or <i>pgww AT lists.pglaf.org</i> for
     production or status questions.
     </p>
