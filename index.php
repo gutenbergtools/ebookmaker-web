@@ -128,6 +128,7 @@ if (!@mkdir($dirname)) {
 
 // We will redirect some messages to this file, for the user to read:
 $outfile = "$tmpdir/$tmpsubdir/output.txt";
+$ebookmaker_log = "$tmpdir/$tmpsubdir/ebookmaker.log";
 
 // Put a BOM at the start (it should always be UTF-8) (temporarily open as a stream):
 $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF));
@@ -266,10 +267,12 @@ $args = [
     $gopts,  # pre-escaped inputs
     escapeshellarg("file://$basename"),
     ">>",
-    escapeshellarg($outfile),
+    escapeshellarg($ebookmaker_log),
     "2>&1",
 ];
 system(join(" ", $args), $retval);
+// put the contents of the ebookmaker.log file into output.txt
+file_put_contents($outfile, file_get_contents($ebookmaker_log), FILE_APPEND);
 append_output_log("--- ebookmaker complete");
 
 if (!$retval) {
