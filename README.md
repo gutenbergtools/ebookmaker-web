@@ -36,4 +36,9 @@ $epubcheck_version = "5.2.1";
 ```
 
 Create a crontab to clean up the contents of `$tmpdir`, periodically deleting
-directories and files older than a certain period of time (eg 3 days).
+directories and files older than a certain period of time (eg 3 days). For example,
+
+10 5 * * * /usr/bin/touch /data/htdocs/ebookmaker/cache/index.htm ; /usr/bin/find /data/htdocs/ebookmaker/cache/ -ctime +3 -name '*' -print | /usr/bin/xargs /bin/rm -rf {} \;
+
+Note that the empty index.htm is so the web server will not expose the entire
+cache directory tree. 
