@@ -8,6 +8,11 @@ Clone this repo somewhere accessible to your web server.
 
 Create a place for the ebookmaker output. This needs to be accessible from
 the web and writeable by the web server. A common location is `./cache/`.
+ebookmaker-web will create a subdirectory for each upload in this location
+and the web server should be configured to show filesystem contents for
+these subdirectories (for Apache, `Options Indexes`). To prevent users from
+seeing the full list of subdirectories you can create an empty
+`./cache/index.htm` file.
 
 Install [ebookmaker](https://github.com/gutenbergtools/ebookmaker) and its
 dependencies and make it accessible to run as the web server.
@@ -38,7 +43,6 @@ $epubcheck_version = "5.2.1";
 Create a crontab to clean up the contents of `$tmpdir`, periodically deleting
 directories and files older than a certain period of time (eg 3 days). For example,
 
-10 5 * * * /usr/bin/touch /data/htdocs/ebookmaker/cache/index.htm ; /usr/bin/find /data/htdocs/ebookmaker/cache/ -ctime +3 -name '*' -print | /usr/bin/xargs /bin/rm -rf {} \;
-
-Note that the empty index.htm is so the web server will not expose the entire
-cache directory tree. 
+```
+10 5 * * * /usr/bin/find /data/htdocs/ebookmaker/cache/ -maxdepth 1 -ctime +3 -type d -print | /usr/bin/xargs /bin/rm -rf {} \;
+```
