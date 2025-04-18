@@ -185,7 +185,14 @@ if (str_ends_with($basename, ".html") || str_ends_with($basename, ".htm")) {
         print "<p style='color: green'>Validating your uploaded file...</p>";
         append_output_log("Validating your uploaded file");
         # TODO: what should we do if the validator fails? Log it? Error out?
-        system("$validator $basename >> $outfile 2>&1", $retval);
+        $args = [
+            $validator,  # trusted input
+            escapeshellarg($basename),
+            ">>",
+            escapeshellarg($outfile),
+            "2>&1",
+        ];
+        system(join(" ", $args), $retval);
         append_output_log("Validation complete");
     }
 }
@@ -242,13 +249,27 @@ print "</p>";
 
 append_output_log("\n");
 append_output_log("--- Starting ebookmaker processing");
-system("$prog --version >> $outfile", $retval);
+$args = [
+    $prog,  # trusted input
+    "--version",
+    ">>",
+    escapeshellarg($outfile),
+];
+system(join(" ", $args), $retval);
 if ($retval) {
     // if we can't run a basic --version something is very wrong and we should stop
     throw new RuntimeException("Error running ebookmaker version check.");
 }
 append_output_log("Command: ebookmaker $gopts file://$basename");
-system("$prog $gopts file://$basename >> $outfile 2>&1", $retval);
+$args = [
+    $prog,  # trusted input
+    $gopts,  # pre-escaped inputs
+    escapeshellarg("file://$basename"),
+    ">>",
+    escapeshellarg($outfile),
+    "2>&1",
+];
+system(join(" ", $args), $retval);
 append_output_log("--- ebookmaker complete");
 
 if (!$retval) {
@@ -402,6 +423,7 @@ function locate_file_for_ebookmaker(string $dirname): string
     // Order of the directory listing is arbitrary. We want to capture
     // .htm, .html and .txt in priority order, taking the last of each
     // we find:
+    $basename = "";
     $basename_txt = "";
     $basename_htm = "";
     $basename_html = "";
