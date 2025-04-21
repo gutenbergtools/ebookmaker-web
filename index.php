@@ -434,19 +434,14 @@ function locate_file_for_ebookmaker(string $dirname): ?string
             continue;
         }
 
-        if (preg_match("/^.+\.txt$/i", $file->getFileName())) {
-            if (! preg_match('/output.txt/', $file->getFileName())) {
-                $basename_txt = $file->getPath()."/".$file->getFileName();
-            }
-        }
-        if (preg_match("/^.+\.htm$/i", $file->getFileName())) {
-            $basename_htm = $file->getPath()."/".$file->getFileName();
-        }
-        if (preg_match("/^.+\.html$/i", $file->getFileName())) {
-            $basename_html = $file->getPath()."/".$file->getFileName();
-        }
-        if (preg_match("/^.+\.xhtml$/i", $file->getFileName())) {
-            $basename_xhtml = $file->getPath()."/".$file->getFileName();
+        if ($file->getExtension() == "txt" && $file->getFilename() != "output.txt") {
+            $basename_txt = $file->getPathname();
+        } elseif ($file->getExtension() == "htm") {
+            $basename_htm = $file->getPathname();
+        } elseif ($file->getExtension() == "html") {
+            $basename_html = $file->getPathname();
+        } elseif ($file->getExtension() == "xhtml") {
+            $basename_xhtml = $file->getPathname();
         }
     }
 
