@@ -421,7 +421,7 @@ function locate_file_for_ebookmaker(string $dirname): ?string
     $files = new RecursiveIteratorIterator($dir);
 
     // Order of the directory listing is arbitrary. We want to capture
-    // .xhtml, .html, .htm and .txt in priority order, taking the last of each
+    // .html, .htm, .xhtml, and .txt in priority order, taking the last of each
     // we find:
     $basename_txt = null;
     $basename_htm = null;
@@ -446,7 +446,7 @@ function locate_file_for_ebookmaker(string $dirname): ?string
     }
 
     // return the first non-null value or null if none are found
-    return $basename_xhtml ?? $basename_html ?? $basename_htm ?? $basename_txt;
+    return $basename_html ?? $basename_htm ?? $basename_xhtml ?? $basename_txt;
 }
 
 function exception_handler($exception): void
