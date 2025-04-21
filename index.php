@@ -430,6 +430,11 @@ function locate_file_for_ebookmaker(string $dirname): string
     $basename_xhtml = "";
 
     foreach ($files as $file) {
+        # skip __MACOSX resource fork contents
+        if (stripos($file->getPath(), "__MACOSX") !== false) {
+            continue;
+        }
+
         if (preg_match("/^.+\.txt$/i", $file->getFileName())) {
             if (! preg_match('/output.txt/', $file->getFileName())) {
                 $basename_txt = $file->getPath()."/".$file->getFileName();
