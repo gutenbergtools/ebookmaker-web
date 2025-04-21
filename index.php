@@ -412,7 +412,7 @@ function process_uploaded_file(string $dirname): void
     }
 }
 
-function locate_file_for_ebookmaker(string $dirname): string
+function locate_file_for_ebookmaker(string $dirname): ?string
 {
     // We'll get all files but . and ..:
     $dir = new RecursiveDirectoryIterator($dirname, RecursiveDirectoryIterator::SKIP_DOTS);
@@ -421,13 +421,12 @@ function locate_file_for_ebookmaker(string $dirname): string
     $files = new RecursiveIteratorIterator($dir);
 
     // Order of the directory listing is arbitrary. We want to capture
-    // .htm, .html and .txt in priority order, taking the last of each
+    // .xhtml, .html, .htm and .txt in priority order, taking the last of each
     // we find:
-    $basename = "";
-    $basename_txt = "";
-    $basename_htm = "";
-    $basename_html = "";
-    $basename_xhtml = "";
+    $basename_txt = null;
+    $basename_htm = null;
+    $basename_html = null;
+    $basename_xhtml = null;
 
     foreach ($files as $file) {
         # skip __MACOSX resource fork contents
@@ -451,19 +450,8 @@ function locate_file_for_ebookmaker(string $dirname): string
         }
     }
 
-    if ($basename_txt) {
-        $basename = $basename_txt;
-    }
-    if ($basename_htm) {
-        $basename = $basename_htm;
-    }
-    if ($basename_html) {
-        $basename = $basename_html;
-    }
-    if ($basename_xhtml) {
-        $basename = $basename_xhtml;
-    }
-    return $basename;
+    // return the first non-null value or null if none are found
+    return $basename_xhtml ?? $basename_html ?? $basename_htm ?? $basename_txt;
 }
 
 function exception_handler($exception): void
