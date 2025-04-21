@@ -412,7 +412,7 @@ function process_uploaded_file(string $dirname): void
     }
 }
 
-function locate_file_for_ebookmaker(string $dirname): string
+function locate_file_for_ebookmaker(string $dirname): ?string
 {
     // We'll get all files but . and ..:
     $dir = new RecursiveDirectoryIterator($dirname, RecursiveDirectoryIterator::SKIP_DOTS);
@@ -421,44 +421,32 @@ function locate_file_for_ebookmaker(string $dirname): string
     $files = new RecursiveIteratorIterator($dir);
 
     // Order of the directory listing is arbitrary. We want to capture
-    // .htm, .html and .txt in priority order, taking the last of each
+    // .html, .htm, .xhtml, and .txt in priority order, taking the last of each
     // we find:
-    $basename = "";
-    $basename_txt = "";
-    $basename_htm = "";
-    $basename_html = "";
-    $basename_xhtml = "";
+    $basename_txt = null;
+    $basename_htm = null;
+    $basename_html = null;
+    $basename_xhtml = null;
 
     foreach ($files as $file) {
-        if (preg_match("/^.+\.txt$/i", $file->getFileName())) {
-            if (! preg_match('/output.txt/', $file->getFileName())) {
-                $basename_txt = $file->getPath()."/".$file->getFileName();
-            }
+        # skip __MACOSX resource fork contents
+        if (stripos($file->getPath(), "__MACOSX") !== false) {
+            continue;
         }
-        if (preg_match("/^.+\.htm$/i", $file->getFileName())) {
-            $basename_htm = $file->getPath()."/".$file->getFileName();
-        }
-        if (preg_match("/^.+\.html$/i", $file->getFileName())) {
-            $basename_html = $file->getPath()."/".$file->getFileName();
-        }
-        if (preg_match("/^.+\.xhtml$/i", $file->getFileName())) {
-            $basename_xhtml = $file->getPath()."/".$file->getFileName();
+
+        if ($file->getExtension() == "txt" && $file->getFilename() != "output.txt") {
+            $basename_txt = $file->getPathname();
+        } elseif ($file->getExtension() == "htm") {
+            $basename_htm = $file->getPathname();
+        } elseif ($file->getExtension() == "html") {
+            $basename_html = $file->getPathname();
+        } elseif ($file->getExtension() == "xhtml") {
+            $basename_xhtml = $file->getPathname();
         }
     }
 
-    if ($basename_txt) {
-        $basename = $basename_txt;
-    }
-    if ($basename_htm) {
-        $basename = $basename_htm;
-    }
-    if ($basename_html) {
-        $basename = $basename_html;
-    }
-    if ($basename_xhtml) {
-        $basename = $basename_xhtml;
-    }
-    return $basename;
+    // return the first non-null value or null if none are found
+    return $basename_html ?? $basename_htm ?? $basename_xhtml ?? $basename_txt;
 }
 
 function exception_handler($exception): void
