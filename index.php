@@ -573,8 +573,6 @@ function output_json_response(string $data, int $response_code = 200)
 
 function return_json_response(string $url_basedir, string $ebookmaker_log): void
 {
-    # TODO: parse ebookmaker_log file for details
-
     // NOT: data in this dictionary should be considered an API and changed
     // with care!
     $data = [
@@ -582,6 +580,25 @@ function return_json_response(string $url_basedir, string $ebookmaker_log): void
         "output_log" => "$url_basedir/output.txt",
         "ebookmaker_log" => "$url_basedir/ebookmaker.log",
     ];
+
+    // Parse the ebookmaker_log file for generated artifacts so
+    // we can return them in the output for easy download.
+    // Requires ebookmaker 0.13.7 or later.
+    $output_artifacts = [];
+    $fh = fopen($ebookmaker_log, "r");
+    if ($fh) {
+        while (($line = fgets($fh)) !== false) {
+            $matches = null;
+            if (preg_match('/:([\w\.]+) output in (.+)$/', $line, $matches)) {
+                $output_artifacts[$matches[1]] = "$url_basedir/" . $matches[2];
+            }
+        }
+        fclose($fh);
+    }
+    if ($output_artifacts) {
+        $data["output_artifacts"] = $output_artifacts;
+    }
+
     $response = json_encode(
         $data,
         JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
