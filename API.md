@@ -72,6 +72,11 @@ Outputs the following:
 {
   "output_dir": "https://ebookmaker.pglaf.org/cache/20250412213215",
   "output_log": "https://ebookmaker.pglaf.org/cache/20250412213215/output.txt",
-  "ebookmaker_log": "https://ebookmaker.pglaf.org/cache/20250412213215/ebookmaker.log"
+  "ebookmaker_log": "https://ebookmaker.pglaf.org/cache/20250412213215/ebookmaker.log",
+  "output_artifacts": {
+    "epub.noimages": "https://ebookmaker.pglaf.org/cache/20250412213215/99999-epub.epub",
+    "epub.images": "https://ebookmaker.pglaf.org/cache/20250412213215/99999-images-epub.epub",
+    "epub3.images": "https://ebookmaker.pglaf.org/cache/20250412213215/99999-images-epub3.epub"
+  }
 }
 ```
