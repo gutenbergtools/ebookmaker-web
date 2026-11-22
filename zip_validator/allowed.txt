@@ -1,0 +1,34 @@
+# Allowed file types for submission
+
+*.txt
+*.htm
+*.html
+cover.jpg
+images/*.jpg
+images/*.jpeg
+images/*.png
+images/*.svg
+images/*.bmp
+images/*.gif
+music/*.mp3
+music/*.mxl
+music/*.midi
+music/*.wav
+fonts/*.ttf
+fonts/*.otf
+*page-images/*.png
+*page-images/*.jpg
+
+# Allowed directory names at any depth
+dir: images
+dir: music
+dir: fonts
+dir: page-images
+dir: source
+
+# These should only apply for errata
+dir: {digits}-page-images
+dir: {digits}
+dir: {digits}-h
+dir: {digits}-src
+archive-dir: old

@@ -376,8 +376,15 @@ function process_uploaded_file(string $dirname): void
         throw new RuntimeException("Error changing uploaded file permissions");
     }
 
-    // Unzip the input file, if needed:
-    if (str_ends_with($newname, ".zip")) {
+    // Validate ZIP uploads before extraction.
+    if (str_ends_with(strtolower($newname), ".zip")) {
+        require_once __DIR__ . '/zip_validator/zip_validator.php';
+        $result = validate_secure_zip($newname, __DIR__ . '/zip_validator/allowed.txt');
+        if (!$result['success']) {
+            $message = "ZIP validation failed:\n" . implode("\n", $result['errors']);
+            throw new RuntimeException($message);
+        }
+
         append_output_log("unzipping $newname");
         $args = [
             "/usr/bin/unzip",
