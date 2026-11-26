@@ -147,8 +147,9 @@ if (! UserInputs::$make) {
     exit;
 }
 
-// Create new output directory:
-$tmpsubdir = date('YmdHis');
+// Create new output directory prefix with the time + random bytes to prevent
+// easy guessing of directory names
+$tmpsubdir = date('YmdHis') . "-" . bin2hex(random_bytes(6));
 $dirname = $tmpdir . "/" . $tmpsubdir;
 
 // where our output will go
