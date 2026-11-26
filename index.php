@@ -64,6 +64,9 @@ try {
     throw new RuntimeException("ebookmaker web interface is misconfigured.");
 }
 
+// directly-allowed extensions from the upload
+$allowed_extensions = ['zip', 'txt', 'html', 'htm', 'xhtml'];
+
 // Main script
 if (! UserInputs::$make) {
     echo <<<EOPARA
@@ -287,11 +290,16 @@ class UserInputs
 
 function do_form(): void
 {
+    global $allowed_extensions;
+
+    $accept_list = join(",", array_map(fn ($ext) => ".$ext", $allowed_extensions));
+    $human_list = join(", ", $allowed_extensions);
+
     echo <<<EOFORM
         <blockquote>
         <form enctype="multipart/form-data" method="POST" accept-charset="UTF-8">
         <input type="hidden" name="validate_html" value="true">
-        <input type="file" name="file" required> Your file (any of: zip/txt/htm/html)
+        <input type="file" name="file" accept="$accept_list" required> Your file (any of: $human_list)
         <br><input type="text" size="50" name="title" placeholder="Title"> eBook title
         <br><input type="text" size="50" name="author" placeholder="Author"> eBook author
         <br><input type="number" size="10" name="ebook_number" placeholder="10001"> eBook number (must be an integer)
@@ -373,34 +381,74 @@ function append_output_log(string $message): void
     }
 }
 
+class UploadError extends Exception
+{
+}
+
 function process_uploaded_file(string $dirname): void
 {
-    // Rename uploaded file
-    $upfile1_name = fix_filename($_FILES[UserInputs::$file_field_name]['name']);
-    $newname = $dirname . "/" . $upfile1_name;
+    global $allowed_extensions;
 
-    // remove from php spool area
-    if (!@rename($_FILES[UserInputs::$file_field_name]['tmp_name'], $newname)) {
-        throw new RuntimeException("Error renaming uploaded file");
-    }
-    if (!@chmod($newname, 0644)) {
-        throw new RuntimeException("Error changing uploaded file permissions");
-    }
+    // extensions that are forbidden from within the zip
+    $forbidden_extensions = ['phar', 'php', 'phtml', 'py', 'exe', 'dll', 'pl', 'rb', 'cgi'];
 
-    // Unzip the input file, if needed:
-    if (str_ends_with($newname, ".zip")) {
-        append_output_log("unzipping $newname");
-        $args = [
-            "/usr/bin/unzip",
-            "-o",
-            "-U", escapeshellarg($newname),
-            "-d", escapeshellarg($dirname),
-        ];
-        exec(join(" ", $args), $output, $retval);
-        append_output_log(join("\n", $output));
-        if ($retval) {
-            throw new RuntimeException("Error extracting zip file.");
+    // Do basic validation on the file before we do something with it
+    // begin a series of validation tests
+    try {
+        $formid = UserInputs::$file_field_name;
+
+        if (!isset($_FILES[$formid]) || !$_FILES[$formid]["name"]) {
+            throw new UploadError("No file was uploaded");
         }
+
+        // get the information about the file
+        $file_name = $_FILES[$formid]['name'];
+        $file_size = $_FILES[$formid]['size'];
+        $file_tmp = $_FILES[$formid]['tmp_name'];
+
+        // lowercase the extension
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+        // was a non-zero sized file uploaded?
+        if ($file_size == 0) {
+            throw new UploadError("Empty file was uploaded");
+        }
+
+        // do they claim it's an allowed type?
+        if (!in_array($file_ext, $allowed_extensions, strict: true)) {
+            throw new UploadError(
+                sprintf("File must have a %s extension", join(" or ", $allowed_extensions))
+            );
+        }
+
+        // If it's a zip, check for any forbidden filename extensions,
+        // and only if none are found extract the entire archive.
+        if ($file_ext == "zip") {
+            $zip_archive = new ZipArchive();
+            $result = $zip_archive->open($file_tmp);
+            if ($result === true) {
+                for ($i = 0; $i < $zip_archive->numFiles; $i++) {
+                    $file_name = $zip_archive->getNameIndex($i);
+                    $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+                    if (in_array($ext, $forbidden_extensions)) {
+                        throw new UploadError("Disallowed file found in zip: $file_name");
+                    }
+                }
+                $zip_archive->extractTo($dirname);
+            } else {
+                throw new UploadError("Unable to unzip uploaded file");
+            }
+        }
+
+        // Move the file into place. If it's a zip it will keep both the zip
+        // and the unzipped contents which have already been unzipped to $dirname
+        $upfile1_name = fix_filename($_FILES[$formid]['name']);
+        $final_filepath = $dirname . "/" . $upfile1_name;
+        if (move_uploaded_file($file_tmp, $final_filepath) === false) {
+            throw new UploadError("Error moving uploaded file to working directory");
+        }
+    } catch (Exception $e) {
+        throw new UploadError("Error encountered uploading file: " . $e->getMessage());
     }
 }
 
