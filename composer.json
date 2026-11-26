@@ -1,0 +1,15 @@
+{
+    "name": "gutenbergtools/ebookmaker-web",
+    "description": "Web interface to ebookmaker",
+    "type": "project",
+    "license": "CC0-1.0",
+    "require": {},
+    "require-dev": {
+        "phpstan/phpstan": "^2.3"
+    },
+    "config": {
+        "platform": {
+            "php": "8.1"
+        }
+    }
+}
