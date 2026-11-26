@@ -2,3 +2,4 @@ cache/
 config.php
 /vendor/
 .phpstan.cache
+.php-cs-fixer.cache
