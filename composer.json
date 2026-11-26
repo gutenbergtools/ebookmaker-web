@@ -5,7 +5,8 @@
     "license": "CC0-1.0",
     "require": {},
     "require-dev": {
-        "phpstan/phpstan": "^2.3"
+        "phpstan/phpstan": "^2.3",
+        "friendsofphp/php-cs-fixer": "^3.95"
     },
     "config": {
         "platform": {
