@@ -50,6 +50,16 @@ try {
             throw new RuntimeException("$var_name config variable not set.");
         }
     }
+    /**
+     * Tell PHPstan that these globals are now defined
+     * @var string $mybaseurl
+     * @var string $prog
+     * @var string $validator
+     * @var string $tmpdir
+     * @var string $ebookmaker_version
+     * @var string $validator_version
+     * @var string $epubcheck_version
+     */
 } catch (Exception | Error $exception) {
     throw new RuntimeException("ebookmaker web interface is misconfigured.");
 }
@@ -221,6 +231,7 @@ class UserInputs
     public static ?string $title;
     public static ?string $author;
     public static ?string $file_field_name;
+    /** @var string[] $make_formats */
     public static array $make_formats;
     public static string $output_format = "html";
     public static bool $validate_html = false;
@@ -430,7 +441,7 @@ function locate_file_for_ebookmaker(string $dirname): ?string
     return $basename_html ?? $basename_htm ?? $basename_xhtml ?? $basename_txt;
 }
 
-function validate_html($basename)
+function validate_html(string $basename): void
 {
     global $validator, $outfile;
 
@@ -486,6 +497,7 @@ function validate_html($basename)
     }
 }
 
+/** @return array{int, string} */
 function run_ebookmaker(
     string $input_path,
     string $output_dir,
@@ -560,7 +572,7 @@ function run_ebookmaker(
     return [$retval, $ebookmaker_log];
 }
 
-function output_json_response(string $data, int $response_code = 200)
+function output_json_response(string $data, int $response_code = 200): never
 {
     // drop the output buffer we've been storing to prevent errant output
     // from violating the JSON response
@@ -606,18 +618,18 @@ function return_json_response(string $url_basedir, string $ebookmaker_log): void
     output_json_response($response, 200);
 }
 
-function json_exception_handler($exception): void
+function json_exception_handler(Throwable $exception): void
 {
     $response = json_encode(
         ["error" => $exception->getMessage()],
         JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
     );
-    output_json_response($response, 500);
-
     append_output_log("JSON interface encountered an exception: " . $exception->getMessage());
+
+    output_json_response($response, 500);
 }
 
-function html_exception_handler($exception): void
+function html_exception_handler(Throwable $exception): void
 {
     echo "<p style='color: red'>\n";
     echo htmlspecialchars($exception->getMessage(), ENT_QUOTES, 'UTF-8');
